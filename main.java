@@ -15,10 +15,28 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+
 public class main extends Application {
+
+    public static void main(String[] args) {
+        launch(args);
+    }
+    private Scene põhiScene;
+    private Scene optionsScene;
+    private Stage stage;
+
 
     @Override
     public void start(Stage primaryStage) {
+        // KELLAAJA KUVAMINE - hetkel kuvab ainult konsoolis
+        //Calendar kalender = Calendar.getInstance();
+        //SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
+        //System.out.println(sdf.format(kalender.getTime()));
+
+
         BorderPane põhi = new BorderPane();
         Scene scene = new Scene(põhi, 500,300, Color.WHITE);
 
@@ -55,40 +73,18 @@ public class main extends Application {
         final ListView<String> heroListView = new ListView<>(valitud);
         gridalus.add(heroListView, 2, 1);
 
-        Button sendRightButton = new Button(" > ");
-        sendRightButton.setStyle("-fx-font-size: 10pt;");
-        sendRightButton.setOnAction((ActionEvent event) -> {
-            String potential = candidatesListView.getSelectionModel()
-                    .getSelectedItem();
-            if (potential != null) {
-                candidatesListView.getSelectionModel().clearSelection();
-                valik.remove(potential);
-                valitud.add(potential);
-            }
-        });
-
-        Button sendLeftButton = new Button(" < ");
-        sendLeftButton.setStyle("-fx-font-size: 10pt;");
-        sendLeftButton.setOnAction((ActionEvent event) -> {
-            String s = heroListView.getSelectionModel().getSelectedItem();
-            if (s != null) {
-                heroListView.getSelectionModel().clearSelection();
-                valitud.remove(s);
-                valik.add(s);
-
-            }
-
-        });
-
-
-        VBox vbox = new VBox();
-        vbox.setSpacing(10);
-        vbox.setAlignment(Pos.CENTER);
-        vbox.getChildren().addAll(sendRightButton, sendLeftButton);
-
         //Edasi ja tagasi nupud
 
         Button btnEdasi = new Button("Edasi");
+        // MUUDA "EDASI KLAHV MITTEAKTIIVSEKS KUI "VALITUD" ON TÜHI
+        String d = heroListView.getSelectionModel().getSelectedItem();
+        if(d == null){
+            btnEdasi.setDisable(true);
+        }
+        else{
+            btnEdasi.setDisable(false);
+        }
+
         Button btnKatkesta = new Button("Katkesta");
         btnEdasi.setStyle("-fx-font-size: 10pt;");
         btnKatkesta.setStyle("-fx-font-size: 10pt;");
@@ -103,20 +99,78 @@ public class main extends Application {
         tileButtons.setAlignment(Pos.CENTER);
         tileButtons.getChildren().addAll(btnEdasi, btnKatkesta);
 
+        Button sendRightButton = new Button(" > ");
+        sendRightButton.setStyle("-fx-font-size: 10pt;");
+        sendRightButton.setOnAction((ActionEvent event) -> {
+            String potential = candidatesListView.getSelectionModel()
+                    .getSelectedItem();
+            if (potential != null) {
+                candidatesListView.getSelectionModel().clearSelection();
+                valik.remove(potential);
+                valitud.add(potential);
+            }
+            // MUUDA "EDASI KLAHV MITTEAKTIIVSEKS KUI "VALITUD" ON TÜHI
+            if(valitud == null){
+                btnEdasi.setDisable(true);
+            }
+            else{
+                btnEdasi.setDisable(false);
+            }
+
+        });
+
+        Button sendLeftButton = new Button(" < ");
+        sendLeftButton.setStyle("-fx-font-size: 10pt;");
+        sendLeftButton.setOnAction((ActionEvent event) -> {
+            String s = heroListView.getSelectionModel().getSelectedItem();
+            if (s != null) {
+                heroListView.getSelectionModel().clearSelection();
+                valitud.remove(s);
+                valik.add(s);
+
+            }
+            // MUUDA "EDASI KLAHV MITTEAKTIIVSEKS KUI "VALITUD" ON TÜHI
+            String f = heroListView.getSelectionModel().getSelectedItem();
+            if(f == null){
+                btnEdasi.setDisable(true);
+            }
+            else{
+                btnEdasi.setDisable(false);
+            }
+
+
+        });
+
+
+        VBox vbox = new VBox();
+        vbox.setSpacing(10);
+        vbox.setAlignment(Pos.CENTER);
+        vbox.getChildren().addAll(sendRightButton, sendLeftButton);
+
+
+        //Edasi nupu event
+
         btnEdasi.setOnAction((ActionEvent event) -> {
+
                 VBox vbox2 = new VBox();
-                Scene edasi = new Scene(vbox2, 300, 100);
+                Scene edasi = new Scene(vbox2, 500, 300, Color.ANTIQUEWHITE);
+
                 primaryStage.setScene(edasi);
                 primaryStage.show();
 
 
-                Label edasitekst = new Label("Valisid auto " + valitud);
+                Label edasitekst = new Label("valisid auto " + valitud );
                 vbox2.getChildren().addAll(edasitekst);
                 primaryStage.show();
 
 
+        });
 
 
+        // Katkesta nupu event
+
+        btnKatkesta.setOnAction((ActionEvent event) -> {
+            primaryStage.close();
         });
 
 
@@ -129,11 +183,13 @@ public class main extends Application {
 
 
 
+
         GridPane.setVgrow(põhi, Priority.ALWAYS);
         primaryStage.setScene(scene);
         primaryStage.show();
+
     }
-    public static void main(String[] args) {
-        launch(args);
-    }
+
+
+
 }
