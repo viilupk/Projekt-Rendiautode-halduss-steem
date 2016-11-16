@@ -1,3 +1,4 @@
+import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.beans.binding.DoubleBinding;
 import javafx.collections.FXCollections;
@@ -8,37 +9,50 @@ import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListView;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 
 public class main extends Application {
+    String[] rendipunktid = {"Alfa", "Bravo", "Charlie", "Delta"};
+    String[] autopunktA = {"111 aaa", "222 aaa", "333 aaa", "444 aaa"};
+    String[] autopunktB = {"111 bbb", "222 bbb", "333 bbb"};
+    String[] autopunktC = {"111 ccc", "222 ccc", "333 ccc"};
+    String[] autopunktD = {"111 ddd", "222 ddd", "333 ddd"};
 
-    public static void main(String[] args) {
-        launch(args);
-    }
-    private Scene põhiScene;
-    private Scene optionsScene;
-    private Stage stage;
+    String valitudrendipunkt;
+    final ObservableList<String> valik = FXCollections
+            .observableArrayList();
+    final ListView<String> candidatesListView = new ListView<>(valik);
+
+
+    final ObservableList<String> valitud = FXCollections
+            .observableArrayList();
+    final ListView<String> heroListView = new ListView<>(valitud);
+
 
 
     @Override
     public void start(Stage primaryStage) {
-        // KELLAAJA KUVAMINE - hetkel kuvab ainult konsoolis
-        //Calendar kalender = Calendar.getInstance();
-        //SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
-        //System.out.println(sdf.format(kalender.getTime()));
+        // KELLAAJA KUVAMINE
+        DateTime();
+
 
 
         BorderPane põhi = new BorderPane();
         Scene scene = new Scene(põhi, 500,300, Color.WHITE);
+        primaryStage.setTitle("Rendipunkti ja auto valik");
+        primaryStage.setScene(scene);
+        primaryStage.show();
+
 
         GridPane gridalus = new GridPane();
         gridalus.setPadding(new Insets(15));
@@ -53,25 +67,61 @@ public class main extends Application {
         column3.setHgrow(Priority.ALWAYS);
         gridalus.getColumnConstraints().addAll(column1, column2, column3);
 
-        Label autodvalikus = new Label("Vabad rendiautod");
-        GridPane.setHalignment(autodvalikus, HPos.CENTER);
-        autodvalikus.setStyle("-fx-font-size: 10pt;");
-        gridalus.add(autodvalikus, 0, 0);
+
+
+
+        //COMBOBOXI LOOMINE
+
+        ComboBox autovalikutecb = new ComboBox();
+            autovalikutecb.getItems().addAll(rendipunktid);
+        autovalikutecb.setPromptText("Rendipunkti valik");
+        autovalikutecb.setMinSize(200, 30);
+
+        // ComboBox valik
+        autovalikutecb.setOnAction((event) ->{
+            valitudrendipunkt = (String) autovalikutecb.getSelectionModel().getSelectedItem();
+            if (valitudrendipunkt == "Alfa") {
+                valik.removeAll(valik);
+                valik.addAll(autopunktA);
+            }
+            else if (valitudrendipunkt == "Bravo"){
+                valik.removeAll(valik);
+                valik.addAll(autopunktB);
+            }
+            else if (valitudrendipunkt == "Charlie"){
+                valik.removeAll(valik);
+                valik.addAll(autopunktC);
+            }
+            else if (valitudrendipunkt == "Delta"){
+                valik.removeAll(valik);
+                valik.addAll(autopunktD);
+            }
+            else{
+                System.out.println("ERROR");
+            }
+            System.out.println(("ComboBox Action (selected: " + valitudrendipunkt.toString() + ")"));
+
+
+        });
+
+
+        //paigutan valikutulbad gridalusele
+        gridalus.add(candidatesListView, 0, 1);
+        gridalus.add(heroListView, 2, 1);
+
+        // KÜSI SIIN, ET KUIDAS MUUTA COMBOBOXI Suurust võltuvaks valiku boxist
+        gridalus.add(autovalikutecb, 0, 0);
+
+        //Label autodvalikus = new Label("Vabad rendiautod");
+        //GridPane.setHalignment(autodvalikus, HPos.CENTER);
+        //autodvalikus.setStyle("-fx-font-size: 10pt;");
+        //gridalus.add(autodvalikus, 0, 0);
 
         Label valitudautod = new Label("Valitud rendiautod");
         gridalus.add(valitudautod, 2, 0);
         GridPane.setHalignment(valitudautod, HPos.CENTER);
         valitudautod.setStyle("-fx-font-size: 10pt;");
 
-        final ObservableList<String> valik = FXCollections
-                .observableArrayList("892 AAS", "892 SAL", "943 KAS", "921 LAS", "892 KLS");
-        final ListView<String> candidatesListView = new ListView<>(valik);
-        gridalus.add(candidatesListView, 0, 1);
-
-        final ObservableList<String> valitud = FXCollections
-                .observableArrayList();
-        final ListView<String> heroListView = new ListView<>(valitud);
-        gridalus.add(heroListView, 2, 1);
 
         //Edasi ja tagasi nupud
 
@@ -92,12 +142,23 @@ public class main extends Application {
         btnEdasi.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
         btnKatkesta.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 
+        //ComboBox cb = new ComboBox(FXCollections.observableArrayList(rendipunktid));
+        //ComboBox cb = new ComboBox();
+        //cb.getItems().addAll(rendipunktid);
+        //cb.setPromptText("Rendipunktid");
+
+
+
+
+
         TilePane tileButtons = new TilePane(Orientation.HORIZONTAL);
         tileButtons.setPadding(new Insets(20,10,20,0));
         tileButtons.setHgap(10.0);
         tileButtons.setVgap(8.0);
         tileButtons.setAlignment(Pos.CENTER);
         tileButtons.getChildren().addAll(btnEdasi, btnKatkesta);
+
+
 
         Button sendRightButton = new Button(" > ");
         sendRightButton.setStyle("-fx-font-size: 10pt;");
@@ -150,21 +211,7 @@ public class main extends Application {
 
         //Edasi nupu event
 
-        btnEdasi.setOnAction((ActionEvent event) -> {
 
-                VBox vbox2 = new VBox();
-                Scene edasi = new Scene(vbox2, 500, 300, Color.ANTIQUEWHITE);
-
-                primaryStage.setScene(edasi);
-                primaryStage.show();
-
-
-                Label edasitekst = new Label("valisid auto " + valitud );
-                vbox2.getChildren().addAll(edasitekst);
-                primaryStage.show();
-
-
-        });
 
 
         // Katkesta nupu event
@@ -175,8 +222,13 @@ public class main extends Application {
 
 
 
+
+
+
         gridalus.add(vbox, 1, 1);
         põhi.setCenter(gridalus);
+
+
 
         gridalus.add(tileButtons, 2, 2);
         põhi.setCenter(gridalus);
@@ -190,6 +242,16 @@ public class main extends Application {
 
     }
 
+
+
+    public void DateTime() {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        Date date = new Date();
+        System.out.println(dateFormat.format(date));
+
+
+
+    }
 
 
 }
